@@ -1,0 +1,8 @@
+parameters:
+services:
+    validator.parabol.entity_min_number:
+        class: Parabol\BaseBundle\Validator\Constraints\EntityMinNumberValidator
+        arguments:
+            - "@request_stack"
+        tags:
+            - { name: validator.constraint_validator, alias: parabol_entity_min_number }     

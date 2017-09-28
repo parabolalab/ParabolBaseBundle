@@ -1,0 +1,23 @@
+{
+    "name": "parabol/parabol-base-bundle",
+    "type": "symfony-bundle",
+    "minimum-stability": "dev",
+    "description": "Base bundle for symfony project base on symfony2admingenerator and ParabolAdminCoreBundle",
+    "keywords": ["base"],
+    "homepage": "https://github.com/parabolalab/ParabolBaseBundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marcin Kalota",
+            "email": "marcin@parabolalab.com",
+            "homepage": "http://www.parabolalab.com"
+        }
+    ],
+    "require" : {
+        "php": ">=5.6.0"
+    },
+    "autoload": {
+        "psr-4": { "Parabol\\BaseBundle\\": "" }
+    }
+
+}
