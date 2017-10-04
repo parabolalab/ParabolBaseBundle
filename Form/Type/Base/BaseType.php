@@ -109,6 +109,10 @@ trait BaseType
             if(isset($config['field_type']) && $config['field_type'] == \Ivory\CKEditorBundle\Form\Type\CKEditorType::class)
             {
                 $result['fields'][$name] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditroDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+
+                $result['fields'][$name]['base_path'] = 'admin/components/ckeditor/';
+                $result['fields'][$name]['js_path'] = 'admin/components/ckeditor/ckeditor.js';
+                $result['fields'][$name]['jquery_path'] = 'admin/components/ckeditor/adapters/jquery.js';
             }
         }   
 
