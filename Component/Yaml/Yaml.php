@@ -40,10 +40,44 @@ class Yaml extends BaseYaml
 		return $arr;
 	}
 
-	public static function dump($input, $inline = 2, $indent = 4, $flags = 0)
-    {
-    	return parent::dump(static::mergeDuplicates($input), $inline, $indent, $flags);
-    }
+	public static function merge($merged, $array, $lastkey = null)
+	{
 
+
+	 	foreach($array as $key => $item)
+	 	{
+	 		if(!isset($merged[$key]))
+	 		{
+	 			$merged[$key] = $item;
+	 		}
+	 		else
+	 		{
+	 			if(!is_integer($key))
+	 			{
+		 			if(!is_array($item)) $merged[$key] =  $item;
+		 			else $merged[$key] = static::merge($merged[$key], $item, $key);
+		 		}
+	 			else {
+
+	 				$merged = array_merge($merged, $array);
+	 				$serialized = '';
+	 				$new = [];
+	 				foreach ($merged as $key => $value) {
+	 					$serializedItem = serialize($value);
+	 					if(strpos($serialized, $serializedItem) === false)
+	 					{
+	 						$serialized .= $serializedItem;
+	 						$new[] = $value;
+	 					}
+	 					
+	 				}
+	 				$merged = $new;
+	 				break;
+	 			}
+	 		}
+	 	}
+
+	 	return $merged;
+	}
 
 }
