@@ -489,7 +489,7 @@ trait BaseType
                 unset($fieldOptions['allow_add'], $fieldOptions['allow_delete'], $fieldOptions['type'], $fieldOptions['options']);
 
                 $class = $this->builder->getDataClass();
-                if($class::allowMultipleFiles())
+                if(method_exists($class, 'allowMultipleFiles') && $class::allowMultipleFiles())
                 {
                     $fieldOptions['multiple'] = true;
                 } 
