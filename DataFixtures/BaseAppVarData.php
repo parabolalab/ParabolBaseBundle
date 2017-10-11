@@ -1,12 +1,12 @@
 <?php 
 
-namespace Parabol\BaseBundle\DataFixtures\AppVar;
+namespace Parabol\BaseBundle\DataFixtures;
 
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
-use Parabol\AdminCoreBundle\Entity\AppVar;
+use App\AdminCoreBundle\Entity\AppVar;
 
-class AppVar implements FixtureInterface
+class BaseAppVarData implements FixtureInterface
 {
 	protected $manager;
     protected $namespace = null;

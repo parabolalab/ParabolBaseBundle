@@ -108,7 +108,7 @@ trait BaseType
         {
             if(isset($config['field_type']) && $config['field_type'] == \Ivory\CKEditorBundle\Form\Type\CKEditorType::class)
             {
-                $result['fields'][$name] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditroDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+                $result['fields'][$name] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
 
                 $result['fields'][$name]['base_path'] = 'admin/components/ckeditor/';
                 $result['fields'][$name]['js_path'] = 'admin/components/ckeditor/ckeditor.js';
@@ -200,19 +200,19 @@ trait BaseType
     	if(method_exists($class, 'setContent'))
         { 
             // $result['content'] =   array( 'field_type' => \Symfony\Component\Form\Extension\Core\Type\TextareaType::class, 'required' => false);
-            $result['content'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditroDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+            $result['content'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
         }
 
 
         // if(method_exists($class, 'setLocationDescription'))
         // { 
         //     // $result['content'] =   array( 'field_type' => \Symfony\Component\Form\Extension\Core\Type\TextareaType::class, 'required' => false);
-        //     $result['locationDescription'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditroDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+        //     $result['locationDescription'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
         // }
 
         if(method_exists($class, 'setDescription')) 
         {
-            if(!isset($class::$nockeditor) || !$class::$nockeditor) $result['description'] =  array( 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditroDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+            if(!isset($class::$nockeditor) || !$class::$nockeditor) $result['description'] =  array( 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
             else $result['description'] = array('attr' => array('style' => 'height: 600px'));
 
             $result['description']['required'] = false;
@@ -233,7 +233,7 @@ trait BaseType
     	return $result;
     }
 
-    protected function getCKEditroDefaultPlugins()
+    protected function getCKEditorDefaultPlugins()
     {
         return array(
                     'codemirror' => array(
@@ -307,7 +307,7 @@ trait BaseType
                     ),
                 
             ),
-            'extraPlugins' => implode(',', array_keys($this->getCKEditroDefaultPlugins())),
+            'extraPlugins' => implode(',', array_keys($this->getCKEditorDefaultPlugins())),
             'filebrowserBrowseUrl' => '/app_dev.php/admin/files/browser',
             // 'filebrowserUploadUrl' => '/uploader/upload.php',
         );
@@ -393,8 +393,8 @@ trait BaseType
     // var_dump($this->{'getType'.ucfirst($name)}());
         switch($this->currentType)
         {
-            case 'Symfony\Component\Form\Extension\Core\Type\DateTimeType':
-            case 'datetime':
+            case \Symfony\Component\Form\Extension\Core\Type\DateTimeType::class:
+            
                 if(!array_key_exists('widget', $fieldOptions)) { 
                     $fieldOptions['widget'] = 'single_text'; 
                 }
@@ -411,8 +411,8 @@ trait BaseType
                 
             break;
 
-            case 'Symfony\Component\Form\Extension\Core\Type\DateType':
-            case 'date':
+            case \Symfony\Component\Form\Extension\Core\Type\DateType::class:
+            
                 if(!array_key_exists('widget', $fieldOptions)) { 
                     $fieldOptions['widget'] = 'single_text'; 
                 }
@@ -430,8 +430,8 @@ trait BaseType
                 
             break;
 
-            case 'Symfony\Component\Form\Extension\Core\Type\TimeType':
-            case 'time':
+            case \Symfony\Component\Form\Extension\Core\Type\TimeType::class:
+            
                 if(!array_key_exists('widget', $fieldOptions)) { 
                     $fieldOptions['widget'] = 'single_text'; 
                 }
@@ -455,24 +455,18 @@ trait BaseType
                 
             break;
 
-            case 'checkbox':
-                $fieldOptions['required'] = false;
-            break;
+            // case 'checkbox':
+            //     $fieldOptions['required'] = false;
+            // break;
 
-            case 'Parabol\AdminCoreBundle\Form\Type\ExtChoiceType':
+            case \Parabol\AdminCoreBundle\Form\Type\ExtChoiceType::class:
                 \Parabol\AdminCoreBundle\Form\Type\ExtChoiceType::$fields[] = $name;
                 \Parabol\AdminCoreBundle\Form\Type\ExtChoiceType::$currentClass = $this->getDataClass();
 
                 // $fieldOptions['choices'] = $this->getExtChoiceOptions($name);
             break;
 
-            case 'array':
-
-                // if(strpos($name, 'email') !== false) $fieldOptions['field_type'] = 'email';
-            
-            break;
-
-            case 'Symfony\Component\Form\Extension\Core\Type\HiddenType':
+            case \Symfony\Component\Form\Extension\Core\Type\HiddenType::class:
 
                     // switch($name)
                     // {
