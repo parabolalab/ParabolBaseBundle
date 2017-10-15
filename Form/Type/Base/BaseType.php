@@ -376,9 +376,11 @@ trait BaseType
     protected function getTypeFiles()
     {
         if (!method_exists($this, 'canDisplayFilesUpdatedAt') || $this->canDisplayFilesUpdatedAt()) {
-            $this->builder->add('filesUpdatedAt', $this->getTypeFilesUpdatedAt(), $this->getOptionsFilesUpdatedAt(array()))
-            // ->addViewTransformer(new DateTimeToStringTransformer())
-            ;
+            
+            $this->builder->add('filesUpdatedAt', $this->getTypeFilesUpdatedAt(), $this->getOptionsFilesUpdatedAt(array()));
+
+            $this->builder->add('filesOrder', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class);
+
         }
 
         return \Parabol\FilesUploadBundle\Form\Type\BlueimpType::class;
