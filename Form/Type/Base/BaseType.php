@@ -240,6 +240,10 @@ trait BaseType
                         'path'     => '/bundles/paraboladmincore/js/admin/ckeditor/plugins/codemirror/',
                         'filename' => 'plugin.js',
                     ),
+                    'pagebreak' => array(
+                        'path'     => '/admin/components/ckeditor/plugins/pagebreak/',
+                        'filename' => 'plugin.js',
+                    )
                     // 'paraboltest' => array(
                     //     'path'     => '/bundles/paraboladmincore/js/admin/ckeditor/plugins/paraboltest/',
                     //     'filename' => 'plugin.js',
@@ -282,10 +286,10 @@ trait BaseType
                     'name' => 'links',
                     'items' => array( 'Link', 'Unlink', 'Anchor' )
                     ),
-                // array(
-                //     'name' => 'insert',
-                //     'items' => array( 'Image', 'Table', 'HorizontalRule', 'SpecialChar', 'PageBreak', 'Iframe' )
-                //     ),
+                array(
+                    'name' => 'insert',
+                    'items' => array( 'Image', 'PageBreak', 'SpecialChar', 'Iframe' )
+                    ),
                 array(
                     'name' => 'tools',
                     'items' => array( 'Maximize', 'ShowBlocks' )
@@ -375,12 +379,10 @@ trait BaseType
 
     protected function getTypeFiles()
     {
-        if (!method_exists($this, 'canDisplayFilesUpdatedAt') || $this->canDisplayFilesUpdatedAt()) {
-            
+        if (!method_exists($this, 'canDisplayFilesUpdatedAt') || $this->canDisplayFilesUpdatedAt()) 
+        {            
             $this->builder->add('filesUpdatedAt', $this->getTypeFilesUpdatedAt(), $this->getOptionsFilesUpdatedAt(array()));
-
             $this->builder->add('filesOrder', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class);
-
         }
 
         return \Parabol\FilesUploadBundle\Form\Type\BlueimpType::class;
