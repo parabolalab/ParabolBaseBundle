@@ -5,44 +5,68 @@ namespace Parabol\BaseBundle\Form\Type\Base;
 use Admingenerated\ParabolAdminCoreBundle\Form\BasePageType\EditType as BaseEditType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\DataTransformer\DateTimeToStringTransformer;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * EditType
  */
 trait BaseType
 {
-	protected $builder, $currentType, $extChoices;
+	protected $builder;
 
+
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefault('builderExtensions', []);
+        $resolver->setDefault('ckeditor', []);
+    }
+
+    public function getBuilder()
+    {
+        return $this->builder;
+    }
 
     public function optionsFixer($options)
     {
         //symfony before 3.0 fix
         unset($options['entry_options'], $options['entry_type']);
-
         return $options;
-    }
-
-    public function setExtChoiceOptions($choices)
-    {
-        $this->extChoices = $choices;
-    }
-
-    public function getExtChoiceOptions($type)
-    {   
-        if(isset($this->extChoices[$this->getDataClass()]) && isset($this->extChoices[$this->getDataClass()][$type]))
-        {
-            return (array) $this->extChoices[$this->getDataClass()][$type];
-        }
-        else
-        {
-            return array();
-        }
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
 	{
 		$this->builder = $builder;
-		parent::buildForm($builder, $options);
+
+        foreach($options['builderExtensions']->getExtensions() as $ext)
+        {
+            $ext->configureOptions($this, $options);
+            $ext->preBuild($this, $options);
+        }   
+
+        parent::buildForm($this->builder, $options);
+        
+        foreach($options['builderExtensions']->getExtensions() as $ext)
+        {
+            $ext->postBuild($this, $options);
+        }
+
 	}
+
+    public function getFieldOptons($name)
+    {
+        $fieldOptions = [];
+        if(method_exists($this, 'getOptions' . ucfirst($name)))
+        {
+            $fieldOptions = $this->{'getOptions' . ucfirst($name)}();
+        }
+        return $fieldOptions;
+    }
+
+    public function forceAdd($name, $typeClass, array $fieldOptions = [], array $builderOption = [])
+    {
+        $this->builder->add($name, $typeClass, $this->getOptions($name, $fieldOptions, $builderOption), $typeClass);   
+    }
 
 	public function getData()
 	{
@@ -52,6 +76,22 @@ trait BaseType
     public function getDataClass()
     {
         return $this->builder->getDataClass();
+    }
+
+    public function getOptions($name, array $fieldOptions = array(), array $builderOptions = array(), $forceType = null)
+    {
+        
+        $optionsClass = preg_replace('/Entity(\\\\[^\\\\]+)/', 'Form\Type$1\Options', $this->getDataClass());                                        
+        $options = class_exists($optionsClass) ? new $optionsClass() : null;
+
+        return $this->resolveOptions(
+            $name, 
+            $fieldOptions, 
+            $builderOptions, 
+            $options,
+            $forceType
+        );
+    
     }
 
  //    public function getOptionsId(array $builderOptions = array())
@@ -69,7 +109,7 @@ trait BaseType
 
         if(method_exists(get_parent_class(), 'getOptionsTranslations')) $result = parent::getOptionsTranslations($builderOptions);
         else $result = array();
-        $default_fields = $this->getDefaultTranslationFieldsSetting();
+        $default_fields = $this->getDefaultTranslationFieldsSetting($builderOptions);
 
         unset($result['allow_add'], $result['allow_delete'], $result['type'], $result['options']);
 
@@ -108,7 +148,7 @@ trait BaseType
         {
             if(isset($config['field_type']) && $config['field_type'] == \Ivory\CKEditorBundle\Form\Type\CKEditorType::class)
             {
-                $result['fields'][$name] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+                $result['fields'][$name] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
 
                 $result['fields'][$name]['base_path'] = 'admin/components/ckeditor/';
                 $result['fields'][$name]['js_path'] = 'admin/components/ckeditor/ckeditor.js';
@@ -164,7 +204,7 @@ trait BaseType
     //     return $result;
     // }
 
-    protected function getDefaultTranslationFieldsSetting()
+    protected function getDefaultTranslationFieldsSetting($builderOptions)
     {
   
 
@@ -200,19 +240,19 @@ trait BaseType
     	if(method_exists($class, 'setContent'))
         { 
             // $result['content'] =   array( 'field_type' => \Symfony\Component\Form\Extension\Core\Type\TextareaType::class, 'required' => false);
-            $result['content'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+            $result['content'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
         }
 
 
         // if(method_exists($class, 'setLocationDescription'))
         // { 
         //     // $result['content'] =   array( 'field_type' => \Symfony\Component\Form\Extension\Core\Type\TextareaType::class, 'required' => false);
-        //     $result['locationDescription'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+        //     $result['locationDescription'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
         // }
 
         if(method_exists($class, 'setDescription')) 
         {
-            if(!isset($class::$nockeditor) || !$class::$nockeditor) $result['description'] =  array( 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig(), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+            if(!isset($class::$nockeditor) || !$class::$nockeditor) $result['description'] =  array( 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
             else $result['description'] = array('attr' => array('style' => 'height: 600px'));
 
             $result['description']['required'] = false;
@@ -240,15 +280,19 @@ trait BaseType
                         'path'     => '/bundles/paraboladmincore/js/admin/ckeditor/plugins/codemirror/',
                         'filename' => 'plugin.js',
                     ),
+                    'pagebreak' => array(
+                        'path'     => '/admin/components/ckeditor/plugins/pagebreak/',
+                        'filename' => 'plugin.js',
+                    )
                     // 'paraboltest' => array(
                     //     'path'     => '/bundles/paraboladmincore/js/admin/ckeditor/plugins/paraboltest/',
                     //     'filename' => 'plugin.js',
                     // ),
                 );
     }
-    protected function getCKEditroDefaultConfig()
+    protected function getCKEditroDefaultConfig($builderOptions)
     {
-        return array(
+        return array_merge(array(
             'height' => '500px',
             'allowedContent' => true,
             'contentsCss' => '/assetic/css/compiled/app.min.css',
@@ -282,10 +326,10 @@ trait BaseType
                     'name' => 'links',
                     'items' => array( 'Link', 'Unlink', 'Anchor' )
                     ),
-                // array(
-                //     'name' => 'insert',
-                //     'items' => array( 'Image', 'Table', 'HorizontalRule', 'SpecialChar', 'PageBreak', 'Iframe' )
-                //     ),
+                array(
+                    'name' => 'insert',
+                    'items' => array( 'Image', 'PageBreak', 'SpecialChar', 'Iframe' )
+                    ),
                 array(
                     'name' => 'tools',
                     'items' => array( 'Maximize', 'ShowBlocks' )
@@ -308,25 +352,11 @@ trait BaseType
                 
             ),
             'extraPlugins' => implode(',', array_keys($this->getCKEditorDefaultPlugins())),
-            'filebrowserBrowseUrl' => '/app_dev.php/admin/files/browser',
+            'filebrowserBrowseUrl' => null,
             // 'filebrowserUploadUrl' => '/uploader/upload.php',
-        );
+        ), $builderOptions['ckeditor']);
     }
 
-
-
-    protected function getTypeFilesUpdatedAt()
-    {
-        return \Symfony\Component\Form\Extension\Core\Type\HiddenType::class;
-    }
-
-    protected function getOptionsFilesUpdatedAt(array $builderOptions = array())
-    {
-        $optionsClass = 'Parabol\AdminCoreBundle\Form\Type\Page\Options';
-        $options = class_exists($optionsClass) ? new $optionsClass() : null;
-        
-        return $this->resolveOptions('filesUpdatedAt', array(  'label' => 'FilesUpdatedAt',  'translation_domain' => 'Admin',  'required' => true,), $builderOptions, $options);
-    }
     
     // protected function canDisplayFilesUpdatedAt($obj)
     // {
@@ -358,6 +388,11 @@ trait BaseType
         return \Ivory\CKEditorBundle\Form\Type\CKEditorType::class;
     }
 
+    protected function getTypeDescription()
+    {
+        return \Ivory\CKEditorBundle\Form\Type\CKEditorType::class;
+    }
+
     protected function getTypeTranslations()
     {
         return \A2lix\TranslationFormBundle\Form\Type\TranslationsType::class;
@@ -373,22 +408,24 @@ trait BaseType
         return $this->getTypeFiles();
     }
 
-    protected function getTypeFiles()
+    // protected function getTypeFiles()
+    // {
+    //     if (!method_exists($this, 'canDisplayFilesUpdatedAt') || $this->canDisplayFilesUpdatedAt()) 
+    //     {            
+    //         $this->builder->add('filesUpdatedAt', $this->getTypeFilesUpdatedAt(), $this->getOptionsFilesUpdatedAt(array()));
+    //         $this->builder->add('filesOrder', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class);
+    //     }
+
+    //     return \Parabol\FilesUploadBundle\Form\Type\BlueimpType::class;
+    // } 
+
+
+    protected function resolveOptions($name, array $fieldOptions, array $builderOptions = array(), $optionsClass = null, $forceType = null)
     {
-        if (!method_exists($this, 'canDisplayFilesUpdatedAt') || $this->canDisplayFilesUpdatedAt()) {
-            $this->builder->add('filesUpdatedAt', $this->getTypeFilesUpdatedAt(), $this->getOptionsFilesUpdatedAt(array()))
-            // ->addViewTransformer(new DateTimeToStringTransformer())
-            ;
-        }
+        $this->currentType = $forceType ? $forceType : $this->{'getType'.ucfirst($name)}();
 
-        return \Parabol\FilesUploadBundle\Form\Type\BlueimpType::class;
-    } 
-
-
-    protected function resolveOptions($name, array $fieldOptions, array $builderOptions = array(), $optionsClass = null)
-    {
-        $this->currentType = $this->{'getType'.ucfirst($name)}();
-
+        // if($name == 'slider') $this->currentType = 'Parabol\FilesUploadBundle\Form\Type\BlueimpType';
+        // var_dump($name, $this->currentType);
         $fieldOptions = parent::resolveOptions($name, $fieldOptions, $builderOptions, $optionsClass);
     // var_dump($this->{'getType'.ucfirst($name)}());
         switch($this->currentType)
@@ -478,26 +515,12 @@ trait BaseType
 
             break;
 
-            case \Parabol\FilesUploadBundle\Form\Type\BlueimpType::class:
-
-                unset($fieldOptions['allow_add'], $fieldOptions['allow_delete'], $fieldOptions['type'], $fieldOptions['options']);
-
-                $class = $this->builder->getDataClass();
-                if(method_exists($class, 'allowMultipleFiles') && $class::allowMultipleFiles())
-                {
-                    $fieldOptions['multiple'] = true;
-                } 
-
-                //if(!isset($fieldOptions['attr']['labels'])) $fieldOptions['attr']['labels'] = [];
-                $fieldOptions['class'] = $class;
-                $fieldOptions['ref'] = $this->builder->getData()->getId();
-
-
-
-                if($fieldOptions['label'] == 'Files') $fieldOptions['label'] = ' ';
-
-                $fieldOptions = $this->optionsFixer($fieldOptions);
+            case \Ivory\CKEditorBundle\Form\Type\CKEditorType::class:
+                $fieldOptions['base_path'] = 'admin/components/ckeditor/';
+                $fieldOptions['js_path'] = 'admin/components/ckeditor/ckeditor.js';
+                $fieldOptions['jquery_path'] = 'admin/components/ckeditor/adapters/jquery.js';
             break;
+
         }
 
         return $fieldOptions;

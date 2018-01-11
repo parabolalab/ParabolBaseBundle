@@ -23,6 +23,16 @@ class PathUtil
         return $urlized;
 	}
 
+	public function trimScriptName($path)
+	{
+		return '/' . ltrim(ltrim($path, $this->container->get('request_stack')->getCurrentRequest()->getScriptName()), '/');
+	}
+
+	public function trimHost($path)
+	{
+		return preg_replace('#^[\w]*:\/\/[^/]+#', '', $path);
+	}
+
 	public function getWebDir()
     {
         return $this->container->getParameter('kernel.root_dir').DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.$this->container->getParameter('web_dir');
