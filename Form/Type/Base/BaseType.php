@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 trait BaseType
 {
-	protected $builder;
+    protected $builder;
 
 
     public function configureOptions(OptionsResolver $resolver)
@@ -35,23 +35,31 @@ trait BaseType
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
-	{
-		$this->builder = $builder;
+    {
 
-        foreach($options['builderExtensions']->getExtensions() as $ext)
+        $this->builder = $builder;
+
+        if(is_object($options['builderExtensions']))
         {
-            $ext->configureOptions($this, $options);
-            $ext->preBuild($this, $options);
+
+            foreach($options['builderExtensions']->getExtensions() as $ext)
+            {
+                $ext->configureOptions($this, $options);
+                $ext->preBuild($this, $options);
+            }
         }   
 
         parent::buildForm($this->builder, $options);
-        
-        foreach($options['builderExtensions']->getExtensions() as $ext)
+
+        if(is_object($options['builderExtensions']))
         {
-            $ext->postBuild($this, $options);
+            foreach($options['builderExtensions']->getExtensions() as $ext)
+            {
+                $ext->postBuild($this, $options);
+            }
         }
 
-	}
+    }
 
     public function getFieldOptons($name)
     {
@@ -68,10 +76,10 @@ trait BaseType
         $this->builder->add($name, $typeClass, $this->getOptions($name, $fieldOptions, $builderOption), $typeClass);   
     }
 
-	public function getData()
-	{
-		return $this->builder->getData();
-	}
+    public function getData()
+    {
+        return $this->builder->getData();
+    }
 
     public function getDataClass()
     {
@@ -104,12 +112,16 @@ trait BaseType
  //        return $result;
  //    }
 
-	protected function getOptionsTranslations(array $builderOptions = array())
+    protected function getOptionsTranslations(array $builderOptions = array())
     {
+
+        // var_dump($builderOptions);
 
         if(method_exists(get_parent_class(), 'getOptionsTranslations')) $result = parent::getOptionsTranslations($builderOptions);
         else $result = array();
         $default_fields = $this->getDefaultTranslationFieldsSetting($builderOptions);
+
+        // var_dump($result, $default_fields);
 
         unset($result['allow_add'], $result['allow_delete'], $result['type'], $result['options']);
 
@@ -148,7 +160,10 @@ trait BaseType
         {
             if(isset($config['field_type']) && $config['field_type'] == \Ivory\CKEditorBundle\Form\Type\CKEditorType::class)
             {
-                $result['fields'][$name] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+                $result['fields'][$name] = $config;
+                // array('required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+
+
 
                 $result['fields'][$name]['base_path'] = 'admin/components/ckeditor/';
                 $result['fields'][$name]['js_path'] = 'admin/components/ckeditor/ckeditor.js';
@@ -208,11 +223,11 @@ trait BaseType
     {
   
 
-    	$result = array();
+        $result = array();
 
 
 
-    	$class = $this->getDataClass().'Translation';
+        $class = $this->getDataClass().'Translation';
 
         // if($class != 'Parabol\ProductBundle\Entity\ProductTranslation') var_dump($this);
 
@@ -221,11 +236,11 @@ trait BaseType
             $result['url'] =  array('required' => false);
         }
 
-    	if(method_exists($class, 'setSlug')) $result['slug'] =	array( 'display' => false);
+        if(method_exists($class, 'setSlug')) $result['slug'] =  array( 'display' => false);
 
-    	if(method_exists($class, 'setName')) $result['name'] =	array();
+        if(method_exists($class, 'setName')) $result['name'] =  array();
 
-    	if(method_exists($class, 'setTitle')) $result['title'] =	array('required' => true);
+        if(method_exists($class, 'setTitle')) $result['title'] =    array('required' => true);
 
         if(method_exists($class, 'setHeadline')) $result['headline'] =    array('required' => false);
 
@@ -233,11 +248,11 @@ trait BaseType
 
         if(method_exists($class, 'setSubject')) $result['subject'] =  array( 'required' => false);
 
-    	if(method_exists($class, 'setLead')) $result['lead'] =	array( 'field_type' => \Symfony\Component\Form\Extension\Core\Type\TextareaType::class, 'required' => false);
+        if(method_exists($class, 'setLead')) $result['lead'] =  array( 'field_type' => \Symfony\Component\Form\Extension\Core\Type\TextareaType::class, 'required' => false);
 
      
         
-    	if(method_exists($class, 'setContent'))
+        if(method_exists($class, 'setContent'))
         { 
             // $result['content'] =   array( 'field_type' => \Symfony\Component\Form\Extension\Core\Type\TextareaType::class, 'required' => false);
             $result['content'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
@@ -262,7 +277,7 @@ trait BaseType
         if(method_exists($class, 'setButtonLabel'))   $result['buttonLabel'] =    array('required' => false); 
 
         if(method_exists($class, 'setDisplayOnUrl'))   $result['displayOnUrl'] =    array('required' => false); 
-    	
+        
         if(method_exists($class, 'setUrl')) $result['url'] =  array('required' => false);
 
         if(method_exists($class, 'setLabel')) $result['label'] =  array('required' => false);
@@ -270,7 +285,7 @@ trait BaseType
 
 
 
-    	return $result;
+        return $result;
     }
 
     protected function getCKEditorDefaultPlugins()
@@ -410,13 +425,15 @@ trait BaseType
 
     // protected function getTypeFiles()
     // {
-    //     if (!method_exists($this, 'canDisplayFilesUpdatedAt') || $this->canDisplayFilesUpdatedAt()) 
-    //     {            
-    //         $this->builder->add('filesUpdatedAt', $this->getTypeFilesUpdatedAt(), $this->getOptionsFilesUpdatedAt(array()));
-    //         $this->builder->add('filesOrder', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class);
-    //     }
+    //     var_dump(parent::getTypeFiles());
+    //     die();
+    //     // if (!method_exists($this, 'canDisplayFilesUpdatedAt') || $this->canDisplayFilesUpdatedAt()) 
+    //     // {            
+    //     //     $this->builder->add('filesUpdatedAt', $this->getTypeFilesUpdatedAt(), $this->getOptionsFilesUpdatedAt(array()));
+    //     //     $this->builder->add('filesOrder', \Symfony\Component\Form\Extension\Core\Type\HiddenType::class);
+    //     // }
 
-    //     return \Parabol\FilesUploadBundle\Form\Type\BlueimpType::class;
+    //     // return \Parabol\FilesUploadBundle\Form\Type\BlueimpType::class;
     // } 
 
 
