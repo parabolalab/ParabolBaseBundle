@@ -144,13 +144,15 @@ trait BaseType
         $class = $this->getDataClass().'Translation';
         if(method_exists($class, 'formWithoutFields'))
         {
-            if(isset($result['exclude_fields'])) $result['exclude_fields'] = array_merge($result['exclude_fields'], $class::formWithoutFields());
-            else $result['exclude_fields'] = $class::formWithoutFields();
+            if(isset($result['excluded_fields'])) $result['excluded_fields'] = array_merge($result['excluded_fields'], $class::formWithoutFields());
+            else $result['excluded_fields'] = $class::formWithoutFields();
         } 
 
-        if(isset($result['exclude_fields']))
+        if(method_exists($class, 'setSlug')) $result['excluded_fields'] =  array('slug');
+
+        if(isset($result['excluded_fields']))
         {
-            foreach($result['exclude_fields'] as $field)
+            foreach($result['excluded_fields'] as $field)
             {
                 if(isset($result['fields'][$field])) unset($result['fields'][$field]);
             }
@@ -236,8 +238,7 @@ trait BaseType
             $result['url'] =  array('required' => false);
         }
 
-        if(method_exists($class, 'setSlug')) $result['slug'] =  array( 'display' => false);
-
+        
         if(method_exists($class, 'setName')) $result['name'] =  array();
 
         if(method_exists($class, 'setTitle')) $result['title'] =    array('required' => true);
