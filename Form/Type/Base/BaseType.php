@@ -112,6 +112,11 @@ trait BaseType
  //        return $result;
  //    }
 
+    protected function getOptionsTextBlocksTranslations(array $builderOptions = array())
+    {
+        return $this->getOptionsTranslations($builderOptions);
+    }
+
     protected function getOptionsTranslations(array $builderOptions = array())
     {
 
@@ -142,6 +147,10 @@ trait BaseType
         $result['label'] = ' ';
 
         $class = $this->getDataClass().'Translation';
+
+
+
+
         if(method_exists($class, 'formWithoutFields'))
         {
             if(isset($result['excluded_fields'])) $result['excluded_fields'] = array_merge($result['excluded_fields'], $class::formWithoutFields());
@@ -159,6 +168,7 @@ trait BaseType
                 if(isset($result['fields'][$field])) unset($result['fields'][$field]);
             }
         }
+
 
         foreach($result['fields'] as $name => $config)
         {
@@ -240,7 +250,7 @@ trait BaseType
             $result['url'] =  array('required' => false);
         }
 
-        
+
         if(method_exists($class, 'setName')) $result['name'] =  array();
 
         if(method_exists($class, 'setTitle')) $result['title'] =    array('required' => true);
@@ -411,6 +421,10 @@ trait BaseType
         return \Ivory\CKEditorBundle\Form\Type\CKEditorType::class;
     }
 
+    protected function getTypeTextBlockTranslations()
+    {
+        return \A2lix\TranslationFormBundle\Form\Type\TranslationsType::class;
+    }
     protected function getTypeTranslations()
     {
         return \A2lix\TranslationFormBundle\Form\Type\TranslationsType::class;
@@ -509,6 +523,12 @@ trait BaseType
                 $fieldOptions['attr']['data-type'] = 'time';
                 $fieldOptions['attr']['maxlength'] = strlen($fieldOptions['attr']['placeholder']);
 
+                
+            break;
+
+            case \Symfony\Component\Form\Extension\Core\Type\CollectionType::class:
+            
+                if( isset($fieldOptions['entry_options']) &&  isset($fieldOptions['entry_options']['class'])) unset($fieldOptions['entry_options']['class']);
                 
             break;
 
