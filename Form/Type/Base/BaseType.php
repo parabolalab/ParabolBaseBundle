@@ -148,7 +148,9 @@ trait BaseType
             else $result['excluded_fields'] = $class::formWithoutFields();
         } 
 
-        if(method_exists($class, 'setSlug')) $result['excluded_fields'] =  array('slug');
+        if(!isset($result['excluded_fields'])) $result['excluded_fields'] = [];
+        else $result['excluded_fields'] = (array) $result['excluded_fields'];
+        if(method_exists($class, 'setSlug')) $result['excluded_fields'][] =  'slug';
 
         if(isset($result['excluded_fields']))
         {
