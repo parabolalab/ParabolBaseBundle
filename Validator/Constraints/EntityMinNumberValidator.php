@@ -18,16 +18,30 @@ class EntityMinNumberValidator extends ConstraintValidator
     public function validate($value, Constraint $constraint)
     {
 
+        $ns = preg_replace('/^data\./', '', $this->context->getPropertyPath());
+
         $request = $this->requestStack->getCurrentRequest();
 
-        $entities = $request->request->get('uploaded_files');
-        
-        if(count($entities) < $constraint->min)
+        $allParams = $request->request->all();
+
+        if($constraint->ns) {
+            $collection = isset($allParams[$constraint->ns]) ? $allParams[$constraint->ns] : [];
+        }
+
+        if($constraint->min && count($collection) < $constraint->min)
         {
-             $this->context->buildViolation($constraint->message)
+            $this->context->buildViolation($constraint->minMessage)
                         ->setParameter('{{ limit }}', $constraint->min)
                         ->addViolation(); 
         }
+
+        if($constraint->max && count($collection) > $constraint->max)
+        {
+            $this->context->buildViolation($constraint->maxMessage)
+                        ->setParameter('{{ limit }}', $constraint->max)
+                        ->addViolation(); 
+        }
+        
 
          
     }

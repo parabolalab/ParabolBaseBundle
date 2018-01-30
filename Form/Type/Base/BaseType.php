@@ -41,7 +41,6 @@ trait BaseType
 
         if(is_object($options['builderExtensions']))
         {
-
             foreach($options['builderExtensions']->getExtensions() as $ext)
             {
                 $ext->configureOptions($this, $options);
@@ -112,6 +111,11 @@ trait BaseType
  //        return $result;
  //    }
 
+    protected function getOptionsTextBlocksTranslations(array $builderOptions = array())
+    {
+        return $this->getOptionsTranslations($builderOptions);
+    }
+
     protected function getOptionsTranslations(array $builderOptions = array())
     {
 
@@ -142,19 +146,28 @@ trait BaseType
         $result['label'] = ' ';
 
         $class = $this->getDataClass().'Translation';
+
+
+
+
         if(method_exists($class, 'formWithoutFields'))
         {
-            if(isset($result['exclude_fields'])) $result['exclude_fields'] = array_merge($result['exclude_fields'], $class::formWithoutFields());
-            else $result['exclude_fields'] = $class::formWithoutFields();
+            if(isset($result['excluded_fields'])) $result['excluded_fields'] = array_merge($result['excluded_fields'], $class::formWithoutFields());
+            else $result['excluded_fields'] = $class::formWithoutFields();
         } 
 
-        if(isset($result['exclude_fields']))
+        if(!isset($result['excluded_fields'])) $result['excluded_fields'] = [];
+        else $result['excluded_fields'] = (array) $result['excluded_fields'];
+        if(method_exists($class, 'setSlug')) $result['excluded_fields'][] =  'slug';
+
+        if(isset($result['excluded_fields']))
         {
-            foreach($result['exclude_fields'] as $field)
+            foreach($result['excluded_fields'] as $field)
             {
                 if(isset($result['fields'][$field])) unset($result['fields'][$field]);
             }
         }
+
 
         foreach($result['fields'] as $name => $config)
         {
@@ -236,7 +249,6 @@ trait BaseType
             $result['url'] =  array('required' => false);
         }
 
-        if(method_exists($class, 'setSlug')) $result['slug'] =  array( 'display' => false);
 
         if(method_exists($class, 'setName')) $result['name'] =  array();
 
@@ -367,7 +379,7 @@ trait BaseType
                 
             ),
             'extraPlugins' => implode(',', array_keys($this->getCKEditorDefaultPlugins())),
-            'filebrowserBrowseUrl' => null,
+            // 'filebrowserBrowseUrl' => null,
             // 'filebrowserUploadUrl' => '/uploader/upload.php',
         ), $builderOptions['ckeditor']);
     }
@@ -408,6 +420,10 @@ trait BaseType
         return \Ivory\CKEditorBundle\Form\Type\CKEditorType::class;
     }
 
+    protected function getTypeTextBlockTranslations()
+    {
+        return \A2lix\TranslationFormBundle\Form\Type\TranslationsType::class;
+    }
     protected function getTypeTranslations()
     {
         return \A2lix\TranslationFormBundle\Form\Type\TranslationsType::class;
@@ -506,6 +522,12 @@ trait BaseType
                 $fieldOptions['attr']['data-type'] = 'time';
                 $fieldOptions['attr']['maxlength'] = strlen($fieldOptions['attr']['placeholder']);
 
+                
+            break;
+
+            case \Symfony\Component\Form\Extension\Core\Type\CollectionType::class:
+            
+                if( isset($fieldOptions['entry_options']) &&  isset($fieldOptions['entry_options']['class'])) unset($fieldOptions['entry_options']['class']);
                 
             break;
 

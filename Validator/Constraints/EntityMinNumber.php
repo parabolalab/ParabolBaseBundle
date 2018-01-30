@@ -9,9 +9,12 @@ use Symfony\Component\Validator\Constraint;
  */
 class EntityMinNumber extends Constraint
 {
-    public $message = 'This collection must contain {{ limit }} element.';
-    public $min = 1;
+    public $minMessage = 'This collection can not contain less than {{ limit }} elements.';
+    public $maxMessage = 'This collection can not contain more than {{ limit }} elements.';
+    public $min = null;
+    public $max = null;
     public $name = null;
+    public $ns = null;
     public $locales = array();
 
     public function __construct($options = null) //\Doctrine\ORM\EntityManager $em
