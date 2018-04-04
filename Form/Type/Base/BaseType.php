@@ -152,17 +152,17 @@ trait BaseType
 
         if(method_exists($class, 'formWithoutFields'))
         {
-            if(isset($result['excluded_fields'])) $result['excluded_fields'] = array_merge($result['excluded_fields'], $class::formWithoutFields());
-            else $result['excluded_fields'] = $class::formWithoutFields();
+            if(isset($result['exclude_fields'])) $result['exclude_fields'] = array_merge($result['exclude_fields'], $class::formWithoutFields());
+            else $result['exclude_fields'] = $class::formWithoutFields();
         } 
 
-        if(!isset($result['excluded_fields'])) $result['excluded_fields'] = [];
-        else $result['excluded_fields'] = (array) $result['excluded_fields'];
-        if(method_exists($class, 'setSlug')) $result['excluded_fields'][] =  'slug';
+        if(!isset($result['exclude_fields'])) $result['exclude_fields'] = [];
+        else $result['exclude_fields'] = (array) $result['exclude_fields'];
+        if(method_exists($class, 'setSlug')) $result['exclude_fields'][] =  'slug';
 
-        if(isset($result['excluded_fields']))
+        if(isset($result['exclude_fields']))
         {
-            foreach($result['excluded_fields'] as $field)
+            foreach($result['exclude_fields'] as $field)
             {
                 if(isset($result['fields'][$field])) unset($result['fields'][$field]);
             }
