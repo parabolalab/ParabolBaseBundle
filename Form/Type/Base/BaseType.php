@@ -58,6 +58,7 @@ trait BaseType
             }
         }
 
+        // dump($this->getDataClass() , $builder, $options);
     }
 
     public function getFieldOptons($name)
@@ -267,7 +268,13 @@ trait BaseType
         if(method_exists($class, 'setContent'))
         { 
             // $result['content'] =   array( 'field_type' => \Symfony\Component\Form\Extension\Core\Type\TextareaType::class, 'required' => false);
+
+
+
             $result['content'] = array( 'required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
+
+             // dump($this->getDataClass() , $this->getCKEditroDefaultConfig($builderOptions));
+            
         }
 
 
@@ -527,7 +534,12 @@ trait BaseType
 
             case \Symfony\Component\Form\Extension\Core\Type\CollectionType::class:
             
-                if( isset($fieldOptions['entry_options']) &&  isset($fieldOptions['entry_options']['class'])) unset($fieldOptions['entry_options']['class']);
+                if( isset($fieldOptions['entry_options']))
+                {
+                  if(isset($fieldOptions['entry_options']['class'])) unset($fieldOptions['entry_options']['class']);
+
+                  if(method_exists($fieldOptions['entry_type'], 'getCKEditroDefaultConfig') && !isset($fieldOptions['entry_options']['ckeditor']) && isset($builderOptions['ckeditor'])) $fieldOptions['entry_options']['ckeditor'] = $builderOptions['ckeditor'];
+                } 
                 
             break;
 
@@ -558,9 +570,13 @@ trait BaseType
                 $fieldOptions['base_path'] = 'admin/components/ckeditor/';
                 $fieldOptions['js_path'] = 'admin/components/ckeditor/ckeditor.js';
                 $fieldOptions['jquery_path'] = 'admin/components/ckeditor/adapters/jquery.js';
+                $fieldOptions['config'] = $this->getCKEditroDefaultConfig($builderOptions);
+                $fieldOptions['plugins'] = $this->getCKEditorDefaultPlugins();
             break;
 
         }
+
+        // dump([$name, $this->currentType]);
 
         return $fieldOptions;
     }
