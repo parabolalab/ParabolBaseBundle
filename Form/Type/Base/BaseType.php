@@ -309,13 +309,17 @@ trait BaseType
 
     protected function getCKEditorDefaultPlugins()
     {
+        
+
+        $subdomainDir = preg_replace('/\/[\w_]+\.php$/', '', $_SERVER['SCRIPT_NAME']);
+
         return array(
                     'codemirror' => array(
-                        'path'     => '/bundles/paraboladmincore/js/admin/ckeditor/plugins/codemirror/',
+                        'path'     => $subdomainDir . '/bundles/paraboladmincore/js/admin/ckeditor/plugins/codemirror/',
                         'filename' => 'plugin.js',
                     ),
                     'pagebreak' => array(
-                        'path'     => '/admin/components/ckeditor/plugins/pagebreak/',
+                        'path'     => $subdomainDir . '/admin/components/ckeditor/plugins/pagebreak/',
                         'filename' => 'plugin.js',
                     )
                     // 'paraboltest' => array(
