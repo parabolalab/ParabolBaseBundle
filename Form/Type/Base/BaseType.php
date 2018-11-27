@@ -346,7 +346,7 @@ trait BaseType
         return array_merge(array(
             'height' => '500px',
             'allowedContent' => true,
-            'contentsCss' => '/assetic/css/compiled/app.min.css',
+            'contentsCss' => '/css/admin/ckeditor_content.css',
             'entities' => false,
             'enterMode' => 2, //CKEDITOR.ENTER_BR
             'shiftEnterMode' => 1, //CKEDITOR.ENTER_P
