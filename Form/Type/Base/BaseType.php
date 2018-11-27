@@ -172,9 +172,22 @@ trait BaseType
 
         foreach($result['fields'] as $name => $config)
         {
-            if(isset($config['field_type']) && $config['field_type'] == \Ivory\CKEditorBundle\Form\Type\CKEditorType::class)
+
+            if(isset($config['field_type']) && ltrim($config['field_type'], '\\') == \Ivory\CKEditorBundle\Form\Type\CKEditorType::class)
             {
-                $result['fields'][$name] = $config;
+              
+
+                // dump($config);
+               if(!isset($config['required'])) $config['required'] = false;
+               if(!isset($config['config'])) $config['config'] = $this->getCKEditroDefaultConfig($builderOptions);
+               if(!isset($config['plugins'])) $config['plugins'] = $this->getCKEditorDefaultPlugins();
+               if(!isset($config['attr'])) $config['attr'] = array('style' => 'height: 600px');
+
+               $config['field_type'] = $this->getTypeContent();
+
+               $result['fields'][$name] = $config;
+
+
                 // array('required' => false, 'field_type' => $this->getTypeContent(), 'config' => $this->getCKEditroDefaultConfig($builderOptions), 'plugins' => $this->getCKEditorDefaultPlugins(), 'attr' => array('style' => 'height: 600px'));
 
 
