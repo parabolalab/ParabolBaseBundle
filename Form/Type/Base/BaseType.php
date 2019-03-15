@@ -143,6 +143,7 @@ trait BaseType
         }
         else $result['fields'] = $default_fields;
 
+
         
         $result['label'] = ' ';
 
@@ -185,7 +186,30 @@ trait BaseType
             }
         }   
 
-        // var_dump($result['fields']);
+        if(method_exists($class, 'fileContexts'))
+        {
+            $filefield = false;
+            foreach($class::fileContexts() as $context => $isMultiple)
+            {
+                if(isset($result['fields'][$context]))
+                {
+                    $filefield = true;
+                    $result['fields'][$context]['field_type'] = \Parabol\FilesUploadBundle\Form\Type\BlueimpType::class;
+                    $result['fields'][$context]['class'] = $class;
+                    $result['fields'][$context]['multiple'] = $isMultiple;
+                    
+                }
+            }
+
+            if($filefield)
+            {
+                $result['fields']['filesUpdatedAt'] = ['field_type' =>  \Symfony\Component\Form\Extension\Core\Type\HiddenType::class];
+                $result['fields']['filesOrder'] = ['field_type' => \Symfony\Component\Form\Extension\Core\Type\HiddenType::class];
+                $result['fields']['filesHash'] = ['field_type' => \Symfony\Component\Form\Extension\Core\Type\HiddenType::class];
+            }
+        }
+
+        // dump($result['fields']);
         // die();
 
 
@@ -300,7 +324,6 @@ trait BaseType
         if(method_exists($class, 'setUrl')) $result['url'] =  array('required' => false);
 
         if(method_exists($class, 'setLabel')) $result['label'] =  array('required' => false);
-
 
 
 

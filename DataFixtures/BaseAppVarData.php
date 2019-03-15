@@ -27,7 +27,7 @@ class BaseAppVarData implements FixtureInterface
     public function addAppVar($app, $propertyName, $translations, $params = [])
     {
 
-        $params = array_merge(['required' => false, 'grid' => 6, 'i18n' => false, 'readonly' => false, 'varType' => 'string', 'cssClass' => null, 'twigAlias' => null], $params);
+        $params = array_merge(['required' => false, 'grid' => 6, 'i18n' => false, 'readonly' => false, 'varType' => 'string', 'cssClass' => null, 'twigAlias' => null, 'postAction' => null, 'fieldOptions' => null], $params);
         $appVar = new AppVar();
         $appVar->setNamespace($this->namespace);
         $appVar->setApp($app);
@@ -50,6 +50,8 @@ class BaseAppVarData implements FixtureInterface
         $appVar->setIsRequired($params['required']);    
         $appVar->setIsReadonly((boolean)$params['readonly']);
         $appVar->setTwigAlias($params['twigAlias']); 
+        $appVar->setPostAction($params['postAction']);
+        $appVar->setFieldOptions($params['fieldOptions']); 
 
         
         $appVar->mergeNewTranslations();
