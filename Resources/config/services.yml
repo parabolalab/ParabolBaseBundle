@@ -5,4 +5,9 @@ services:
         arguments:
             - "@request_stack"
         tags:
-            - { name: validator.constraint_validator, alias: parabol_entity_min_number }     
+            - { name: validator.constraint_validator, alias: parabol_entity_min_number } 
+    parabol.utils.path:
+        class: Parabol\BaseBundle\Util\PathUtil
+        public: true
+        arguments:
+            - "@service_container"    
