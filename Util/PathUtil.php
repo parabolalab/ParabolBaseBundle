@@ -18,14 +18,14 @@ class PathUtil
 
 	public static function slugize($sluggableText, $delimiter = '-')
 	{
-		$urlized = strtolower( trim( preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', iconv('UTF-8', 'ASCII//TRANSLIT', $sluggableText) ), $delimiter) );
+		    $urlized = strtolower( trim( preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', iconv('UTF-8', 'ASCII//TRANSLIT', $sluggableText) ), $delimiter) );
         $urlized = preg_replace("/[\/_|+ -]+/", $delimiter, $urlized);
         return $urlized;
 	}
 
 	public function trimScriptName($path)
 	{
-		return '/' . ltrim(ltrim($path, $this->container->get('request_stack')->getCurrentRequest()->getScriptName()), '/');
+		return '/' . ltrim(ltrim($path, $this->container->get('request_stack')->getCurrentRequest() ? $this->container->get('request_stack')->getCurrentRequest()->getScriptName() : ' '), '/');
 	}
 
 	public function trimHost($path)
