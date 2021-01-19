@@ -2,15 +2,23 @@
 
 namespace Parabol\BaseBundle\Entity\Base;
 
-use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use Knp\DoctrineBehaviors\Contract\Entity\TimestampableInterface;
+use Knp\DoctrineBehaviors\Model\Timestampable\TimestampableTrait;
+use DateTime;
+use DateTimeInterface;
 
 /**
 * BaseEntity
 */
 class BaseEntity
 {		
-    use ORMBehaviors\Timestampable\Timestampable
+    use TimestampableTrait
     ;
+
+    public function getUpdatedAt(): DateTimeInterface
+    {
+        return $this->updatedAt ? $this->updatedAt : new DateTime();
+    }
 
     public function __construct()
     {
